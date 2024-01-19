@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CategoryService } from 'src/app/modules/shared/services/category.service';
 
 @Component({
@@ -14,6 +14,8 @@ export class NewCategoryComponent implements OnInit {
   private fb = inject(FormBuilder);
   private categoryService = inject(CategoryService)
   private dialogRef = inject(MatDialogRef)
+  public data = inject(MAT_DIALOG_DATA)
+  public estadoForm: string = "Agregar";
 
 
   ngOnInit(): void {
@@ -22,6 +24,11 @@ export class NewCategoryComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required]
     })
+
+    if (this.data != null) {
+      this.updateForm(this.data)
+      this.estadoForm = "Actualizar"
+    }
   }
 
   onSave() {
@@ -30,18 +37,35 @@ export class NewCategoryComponent implements OnInit {
       description: this.categoryForm.get('description')?.value
     }
 
-    this.categoryService.saveCategorie(data)
-      .subscribe((data: any) => {
-        console.log(data);
-        this.dialogRef.close(1)
-      }, (error: any) => {
-        this.dialogRef.close(2)
-      })
-
+    if (data != null) {
+      //update registry
+      this.categoryService.updateCategorie(data, this.data.id)
+        .subscribe((data: any) => {
+          this.dialogRef.close(1)
+        }, (error: any) => {
+          this.dialogRef.close(2)
+        })
+    } else {
+      //create new registry
+      this.categoryService.saveCategorie(data)
+        .subscribe((data: any) => {
+          console.log(data);
+          this.dialogRef.close(1)
+        }, (error: any) => {
+          this.dialogRef.close(2)
+        })
+    }
   }
 
   onCancel() {
     this.dialogRef.close(3)
+  }
+
+  updateForm(data: any) {
+    this.categoryForm = this.fb.group({
+      name: [data.name, Validators.required],
+      description: [data.description, Validators.required]
+    })
   }
 
 }
