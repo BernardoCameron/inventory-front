@@ -15,10 +15,12 @@ export class NewCategoryComponent implements OnInit {
   private categoryService = inject(CategoryService)
   private dialogRef = inject(MatDialogRef)
   public data = inject(MAT_DIALOG_DATA)
-  public estadoForm: string = "Agregar";
+  public estadoForm: string = "";
 
 
   ngOnInit(): void {
+
+    this.estadoForm = "Agregar"
 
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
@@ -26,8 +28,11 @@ export class NewCategoryComponent implements OnInit {
     })
 
     if (this.data != null) {
+
+
       this.updateForm(this.data)
       this.estadoForm = "Actualizar"
+      console.log(this.data);
     }
   }
 
@@ -37,7 +42,10 @@ export class NewCategoryComponent implements OnInit {
       description: this.categoryForm.get('description')?.value
     }
 
-    if (data != null) {
+    console.log(data);
+
+
+    if (this.estadoForm === "Actualizar") {
       //update registry
       this.categoryService.updateCategorie(data, this.data.id)
         .subscribe((data: any) => {
@@ -45,11 +53,11 @@ export class NewCategoryComponent implements OnInit {
         }, (error: any) => {
           this.dialogRef.close(2)
         })
-    } else {
+    } else if (this.estadoForm === "Agregar") {
       //create new registry
       this.categoryService.saveCategorie(data)
         .subscribe((data: any) => {
-          console.log(data);
+          console.log("data: " + data);
           this.dialogRef.close(1)
         }, (error: any) => {
           this.dialogRef.close(2)
