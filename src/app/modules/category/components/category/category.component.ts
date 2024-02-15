@@ -15,9 +15,7 @@ import { NewCategoryComponent } from '../new-category/new-category.component';
 export class CategoryComponent implements OnInit {
 
   private categoryService = inject(CategoryService);
-
   public dialog = inject(MatDialog);
-
   private snackBar = inject(MatSnackBar)
 
   ngOnInit(): void {
